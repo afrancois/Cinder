@@ -619,3 +619,4 @@ GWorldPtr createGWorld( ImageSourceRef imageSource )
 #endif // defined( CINDER_MSW )
 
 } } // namespace cinder::qtime
+

@@ -30,6 +30,7 @@
 #include <windows.h>
 #undef min
 #undef max
+
 #include <xaudio2.h>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>

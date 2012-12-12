@@ -609,4 +609,6 @@ bool MovieWriter::getUserCompressionSettings( Format *result, ImageSourceRef ima
 
 } } // namespace cinder::qtime
 
+
+
 #endif // ! defined( __LP64__ )

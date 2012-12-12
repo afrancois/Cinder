@@ -41,6 +41,11 @@ using boost::int64_t;
 using boost::uint64_t;
 
 #define CINDER_CINDER
+#if _WIN32_WINNT >= 0x0602
+	#define CINDER_MSW_8
+#else
+	#define CINDER_MSW_7
+#endif
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
 	#define CINDER_MSW

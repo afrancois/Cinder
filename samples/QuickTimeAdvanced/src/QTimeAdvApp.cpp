@@ -8,6 +8,7 @@
 #include "cinder/gl/Texture.h"
 #include "cinder/Rand.h"
 #include "cinder/qtime/QuickTime.h"
+#include "MediaEngine.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -35,6 +36,7 @@ class QTimeAdvApp : public AppBasic {
 	vector<qtime::MovieGl> mMovies;
 	// movies we're still waiting on to be loaded
 	vector<qtime::MovieLoader> mLoadingMovies;
+	MediaEngine* me;
 };
 
 
@@ -47,10 +49,15 @@ void QTimeAdvApp::prepareSettings( Settings *settings )
 
 void QTimeAdvApp::setup()
 {
+	me = new MediaEngine();
+	me->initalize();
+	//Sleep(1000);
 	srand( 133 );
-	fs::path moviePath = getOpenFilePath();
-	if( ! moviePath.empty() )
-		loadMovieFile( moviePath );
+	//fs::path moviePath = getOpenFilePath();
+	//if( ! moviePath.empty() ){
+		//me->setSource(ci::Url("sample_ipod.m4v"));
+		//me->load();
+	//}
 }
 
 void QTimeAdvApp::keyDown( KeyEvent event )
@@ -137,30 +144,38 @@ void QTimeAdvApp::fileDrop( FileDropEvent event )
 
 void QTimeAdvApp::update()
 {
-	// let's see if any of our loading movies have finished loading and can be made active
-	for( vector<qtime::MovieLoader>::iterator loaderIt = mLoadingMovies.begin(); loaderIt != mLoadingMovies.end(); ) {
-		try {
-			if( loaderIt->checkPlaythroughOk() ) {
-				addActiveMovie( *loaderIt );
-				loaderIt = mLoadingMovies.erase( loaderIt );
-			}
-			else
-				++loaderIt;
-		}
-		catch( ... ) {
-			console() << "There was an error loading a movie." << std::endl;
-			loaderIt = mLoadingMovies.erase( loaderIt );
+	if(getElapsedFrames() == 5)
+	{
+		me->setAutoPlay(true);
+		me->setLoop(true);
+		me->setSource(ci::Url("http://movies.apple.com/movies/us/hd_gallery/gl1800/480p/bbc_earth_m480p.mov"));
+		
+	}
+	if(getElapsedFrames() == 6)
+	{
+		if(me->isEnded()){
+			//me->play();
 		}
 	}
+	if(me->hasVideo()){
+		
+		Vec2i size = me->getNativeVideoSize();
+		if(size != getWindowBounds().getSize()){
+			setWindowWidth(size.x);
+			setWindowHeight(size.y);
+		}
+	}
+	// let's see if any of our loading movies have finished loading and can be made active
 }
 
 void QTimeAdvApp::draw()
 {
 	gl::clear( Color( 0, 0, 0 ) );
 
-	int totalWidth = 0;
-	for( size_t m = 0; m < mMovies.size(); ++m )
-		totalWidth += mMovies[m].getWidth();
+	/*
+	//int totalWidth = 0;
+	//for( size_t m = 0; m < mMovies.size(); ++m )
+	//	totalWidth += mMovies[m].getWidth();
 
 	int drawOffsetX = 0;
 	for( size_t m = 0; m < mMovies.size(); ++m ) {
@@ -179,7 +194,14 @@ void QTimeAdvApp::draw()
 			drawFFT( mMovies[m], x, y, drawWidth, drawHeight );
 		}
 		drawOffsetX += getWindowWidth() * relativeWidth;
+	
+
 	}
+	*/
+	gl::enable(GL_TEXTURE);
+	gl::color(Color::white());
+	if(me->getSurface())
+		gl::draw(gl::Texture(me->getSurface()),Rectf(0,0,me->getNativeVideoSize().x,me->getNativeVideoSize().y));
 }
 
 void QTimeAdvApp::drawFFT( const qtime::MovieBase &movie, float x, float y, float width, float height )
